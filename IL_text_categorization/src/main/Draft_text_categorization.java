@@ -12,12 +12,12 @@ import java.util.Set;
  * @author DIEGO
  *
  */
-public class Testing {
+public class Draft_text_categorization {
 
 	/**
 	 * 
 	 */
-	public Testing() {
+	public Draft_text_categorization() {
 		// TODO Auto-generated constructor stub
 	}
 
