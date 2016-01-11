@@ -4,8 +4,17 @@ package main;
  */
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 /**
@@ -48,11 +57,77 @@ public class Draft_text_categorization {
 		return sclar / Math.sqrt(norm1 * norm2);
 	}
 	
+	public static Map<String, Integer> wordCounterMethod(InputStream in) {
+        BufferedReader br = null;
+        String words[] = null;
+        String line;
+        Map<String, Integer> wordCount = new HashMap<String, Integer>();     //Creates an Hash Map for storing the words and its count
+        try {
+        	br = new BufferedReader(new InputStreamReader(in));      //creates an Buffered Reader to read the contents of the file
+            
+        	while ((line = br.readLine()) != null) {
+                words = line.toLowerCase().split("\\s+");                      //Splits the words with "space" as an delimeter 
+            }
+            br.close();
+            
+            for (String read : words) {
+                Integer freq = wordCount.get(read);
+                wordCount.put(read, (freq == null) ? 1 : freq + 1); //For Each word the count will be incremented in the Hashmap
+            }
+        } catch (NullPointerException | IOException e) {
+            System.out.println("I could'nt read your files:" + e);
+        }
+            
+        System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
+        System.out.println(wordCount);                                 //Prints the Word and its occurrence
+        
+        return wordCount;
+	}
+	
+	/**
+	 * Devuelve un Set<String> compuesto por los términos 
+	 * que aparecen en el archivo txt pasado como parámetro
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public Set<String> fileToSet(Scanner file){
+		Set<String> doc = new HashSet<>();
+		while (file.hasNext()) {
+		    doc.add(file.next().trim().toLowerCase());
+		}
+		
+		return doc;
+	}
+	
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		Scanner scan = new Scanner(StopWords.class.getResourceAsStream("/clippings/test.txt"));
+		InputStream fileIs = StopWords.class.getResourceAsStream("/clippings/test.txt");
+				
+		Map<String, Integer> wordCount = wordCounterMethod(fileIs);
+		
+//		while (scan.hasNext()) {
+//		    System.out.println(scan.next().trim().toLowerCase());
+//		}
+		
+		String[] stop_words_vector = StopWords.stop_words;
+		
+		Set<String> stop_words_set = new HashSet<>();
+		for(String stop_word:stop_words_vector){
+			stop_words_set.add(stop_word.toLowerCase());
+		}
+		
+		// Set que contiene todos los términos de un documento
+		Set<String> document = new HashSet<>(); //TODO
+		// Eliminamos las stop_words del documento
+		document.removeAll(stop_words_set);
+		
+		
 		/**
 		 *	1) se obtiene el listado de documentos de un path
 		 *
