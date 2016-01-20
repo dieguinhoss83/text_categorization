@@ -108,8 +108,8 @@ public class Draft_text_categorization {
             System.out.println("I could'nt read your files:" + e);
         }
             
-        System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
-        System.out.println(wordCount);                                 //Prints the Word and its occurrence
+        //System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
+        //System.out.println(wordCount);                                 //Prints the Word and its occurrence
         
         return wordCount;
 	}
@@ -136,8 +136,8 @@ public class Draft_text_categorization {
             System.out.println("I could'nt read your files:" + e);
         }
             
-        System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
-        System.out.println(wordCount);                                 //Prints the Word and its occurrence
+        //System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
+        //System.out.println(wordCount);                                 //Prints the Word and its occurrence
         
         return wordCount;
 	}
@@ -172,7 +172,7 @@ public class Draft_text_categorization {
 		return doc;
 	}
 	
-	public static Map<String, Integer> docToMap(String path)
+	public static Map<String, Integer> docAsVectorToMap(String path)
 	{
 		Scanner scan = new Scanner(StopWords.class.getResourceAsStream(path));
 		//InputStream fileIs = StopWords.class.getResourceAsStream("/clippings/test.txt");
@@ -215,65 +215,38 @@ public class Draft_text_categorization {
 		 *		2.2) asignar peso a cada término (# apariciones)
 		 */
 		
-		//2.1) eliminar las stop_words del documento
-		//Obtenemos el documento que queremos categorizar
-		Map<String, Integer> docWithWeights = docToMap("/clippings/test.txt");
-		
-		/** 2.3) se categoriza el Documento
-		 *			2.3.1) se calcula la similaridad numérica entre cada “documento query (Q)” (vector/set) y cada vector 
-		 *					documento en la colección (Di):
-			
-							Sim(Q; Di) = SUM(qj*dij) para los términos comunes tj
-			
-						donde:
-						tj → término presente en Q y Di
-						qj → peso del término tj en Q
-						dij → peso del término tj en Di
-						
-						for(glosario : lista_glosarios){
-							double similaridad = cosine_similarity(Map v1, Map v2);
-							syso(similaridad);
-						}
-		*/
 		Map<String, Integer> glossWithWeights = new HashMap<String,Integer>();
 		double similaridad = 0.0;
-		
-		for(int i=1; i<4; i++){
-			glossWithWeights = docToMap("/clippings/glosario_"+i+".txt");
-			similaridad = cosine_similarity(docWithWeights, glossWithWeights);
 			
-			System.out.println("Similaridad con glosario_"+i+" = "+similaridad);
+		for(int news_sports_counter = 1; news_sports_counter<=15;news_sports_counter++){
+			//2.1) eliminar las stop_words del documento
+			//Obtenemos el documento que queremos categorizar
+			Map<String, Integer> docWithWeights = docAsVectorToMap("/news_sports/news_sports_"+news_sports_counter+".txt");
+			
+			/** 2.3) se categoriza el Documento
+			 *			2.3.1) se calcula la similaridad numérica entre cada “documento query (Q)” (vector/set) y cada vector 
+			 *					documento en la colección (Di):
+				
+								Sim(Q; Di) = SUM(qj*dij) para los términos comunes tj
+				
+							donde:
+							tj → término presente en Q y Di
+							qj → peso del término tj en Q
+							dij → peso del término tj en Di
+							
+							for(glosario : lista_glosarios){
+								double similaridad = cosine_similarity(Map v1, Map v2);
+								syso(similaridad);
+							}
+			*/
+			
+			for(int i=1; i<4; i++){
+				glossWithWeights = docAsVectorToMap("/clippings/glosario_"+i+".txt");
+				similaridad = cosine_similarity(docWithWeights, glossWithWeights);
+				
+				System.out.println("Similaridad de noticia news_sports_"+news_sports_counter+".txt con glosario_"+i+" = "+String.format("%.2f",similaridad*100)+" %");
+			}
 		}
-		
-		/**
-		 *	1) se obtiene el listado de documentos de un path
-		 *
-		 *	2) for(Documento : listaDocumentos){
-		 *		2.1) eliminar las stop_words del documento
-		 *		
-		 *		2.2) asignar peso a cada término (# apariciones)
-		 *
-		 *		2.3) se categoriza el Documento
-		 *			2.3.1) se calcula la similaridad numérica entre cada “documento query (Q)” (vector/set) y cada vector 
-		 *					documento en la colección (Di):
-			
-							Sim(Q; Di) = SUM(qj*dij) para los términos comunes tj
-			
-						donde:
-						tj → término presente en Q y Di
-						qj → peso del término tj en Q
-						dij → peso del término tj en Di
-						
-						for(glosario : lista_glosarios){
-							double similaridad = cosine_similarity(Map v1, Map v2);
-							syso(similaridad);
-						}
-						
-		 *	   }
-		 *
-		 *
-		 */
-
 	}
 
 }
