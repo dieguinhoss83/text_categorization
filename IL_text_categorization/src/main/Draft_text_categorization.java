@@ -1,13 +1,20 @@
 package main;
-/**
- * 
- */
 
+/* Copyright 2015 Diego Martin,Javier Montero 
+  	Licensed under the Apache License, Version 2.0 (the "License"); 
+    you may not use this file except in compliance with the License. 
+    You may obtain a copy of the License at 
+  
+    http://www.apache.org/licenses/LICENSE-2.0 
+ 
+    Unless required by applicable law or agreed to in writing, software 
+    distributed under the License is distributed on an "AS IS" BASIS, 
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+    See the License for the specific language governing permissions and 
+    limitations under the License. 
+*/ 
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,10 +26,8 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.Vector;
 
-/**
- * @author DIEGO
- *
- */
+import org.apache.commons.io.IOUtils;
+
 public class Draft_text_categorization {
 
 	/**
@@ -40,9 +45,8 @@ public class Draft_text_categorization {
 	 * @param v2
 	 * @return
 	 */
-	static double cosine_similarity(Map<String, Double> v1, Map<String, Double> v2) {
-		@SuppressWarnings("unchecked")
-		Set<String> both = new HashSet(v1.keySet());
+	static double cosine_similarity_2(Map<String, Double> v1, Map<String, Double> v2) {
+		Set<String> both = new HashSet<String>(v1.keySet());
 		both.removeAll(v2.keySet());
 
 		double sclar = 0, norm1 = 0, norm2 = 0;
@@ -58,6 +62,28 @@ public class Draft_text_categorization {
 		}
 		return sclar / Math.sqrt(norm1 * norm2);
 	}
+	
+	/**
+	 * 
+	 * http://stackoverflow.com/questions/3622112/vector-space-model-algorithm-in-java-to-get-the-similarity-score-between-two-peo
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	static double cosine_similarity(Map<String, Integer> v1, Map<String, Integer> v2) {
+		Set<String> both = new HashSet<String>(v1.keySet());
+        both.retainAll(v2.keySet());
+        double sclar = 0, norm1 = 0, norm2 = 0;
+        
+        for (String k : both) 
+        	sclar += v1.get(k) * v2.get(k);
+        for (String k : v1.keySet()) 
+        	norm1 += v1.get(k) * v1.get(k);
+        for (String k : v2.keySet()) 
+        	norm2 += v2.get(k) * v2.get(k);
+        return sclar / Math.sqrt(norm1 * norm2);
+}
 	
 	/**
 	 * 
@@ -87,7 +113,7 @@ public class Draft_text_categorization {
         }
             
         System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
-        System.out.println(wordCount);                                 //Prints the Word and its occurrence
+        //System.out.println(wordCount);                                 //Prints the Word and its occurrence
         
         return wordCount;
 	}
@@ -114,8 +140,8 @@ public class Draft_text_categorization {
             System.out.println("I could'nt read your files:" + e);
         }
             
-        System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
-        System.out.println(wordCount);                                 //Prints the Word and its occurrence
+        //System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
+        //System.out.println(wordCount);                                 //Prints the Word and its occurrence
         
         return wordCount;
 	}
@@ -141,37 +167,17 @@ public class Draft_text_categorization {
 	 * @param file
 	 * @return
 	 */
-	public static Vector<String> fileToVector(Scanner file){
+	public static Vector<String> fileToVector(String words){
+		String[] wordsSplit = words.split(" ");
 		Vector<String> doc = new Vector<>();
-		while (file.hasNext()) {
-		    doc.add(file.next().trim().toLowerCase());
+		for(String oneWord : wordsSplit){
+			doc.add(oneWord.trim().toLowerCase());
 		}
-		
 		return doc;
 	}
 	
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		
-		/**
-		 *	1) se obtiene el listado de documentos de un path
-		 *
-		 */
-		//TODO
-		
-		
-		 /**	2) for(Documento : listaDocumentos){
-		 *		2.1) eliminar las stop_words del documento
-		 *		
-		 *		2.2) asignar peso a cada término (# apariciones)
-		 */
-		
-		//2.1
-		//Obtenemos el documento que queremos categorizar
-		Scanner scan = new Scanner(StopWords.class.getResourceAsStream("/clippings/test.txt"));
+	public static Map<String, Integer> docToMap(InputStream inputStream)
+	{
 		//InputStream fileIs = StopWords.class.getResourceAsStream("/clippings/test.txt");
 		
 		String[] stop_words_vector = StopWords.stop_words;
@@ -182,47 +188,29 @@ public class Draft_text_categorization {
 		}
 		
 		// Vetor que contiene todos los términos de un documento
-		Vector<String> docToCategorize = fileToVector(scan);
+		String wordsOfDocument = "";
+		try {
+			wordsOfDocument = IOUtils.toString(inputStream,"ISO-8859-1");
+			wordsOfDocument= wordsOfDocument.replace(".", "");
+			wordsOfDocument= wordsOfDocument.replace(",", "");
+			wordsOfDocument= wordsOfDocument.replace("=", "");
+			wordsOfDocument= wordsOfDocument.replace("-", " ");
+			wordsOfDocument= wordsOfDocument.replace("\"", "");
+			wordsOfDocument= wordsOfDocument.replace("'", "");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Vector<String> docToCategorize = fileToVector(wordsOfDocument);
 		// Eliminamos las stop_words del documento
 		docToCategorize.removeAll(stop_words_set);
-						
+		
+		// 2.2) asignar peso a cada término (# apariciones)
 		// Calculamos los pesos de cada palabra de la noticia
-		Map<String, Integer> wordCount = wordCounterForVector(docToCategorize);
+		Map<String, Integer> docWithWeights = wordCounterForVector(docToCategorize);
 		
-		
-		
-		
-		
-		
-		/**
-		 *	1) se obtiene el listado de documentos de un path
-		 *
-		 *	2) for(Documento : listaDocumentos){
-		 *		2.1) eliminar las stop_words del documento
-		 *		
-		 *		2.2) asignar peso a cada término (# apariciones)
-		 *
-		 *		2.3) se categoriza el Documento
-		 *			2.3.1) se calcula la similaridad numérica entre cada “documento query (Q)” (vector/set) y cada vector 
-		 *					documento en la colección (Di):
-			
-							Sim(Q; Di) = SUM(qj*dij) para los términos comunes tj
-			
-						donde:
-						tj → término presente en Q y Di
-						qj → peso del término tj en Q
-						dij → peso del término tj en Di
-						
-						for(glosario : lista_glosarios){
-							double similaridad = cosine_similarity(Map v1, Map v2);
-							syso(similaridad);
-						}
-						
-		 *	   }
-		 *
-		 *
-		 */
-
+		return docWithWeights;
 	}
 
 }
