@@ -11,11 +11,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.Vector;
 
 /**
  * @author DIEGO
@@ -57,6 +59,12 @@ public class Draft_text_categorization {
 		return sclar / Math.sqrt(norm1 * norm2);
 	}
 	
+	/**
+	 * 
+	 * 
+	 * @param in
+	 * @return
+	 */
 	public static Map<String, Integer> wordCounterMethod(InputStream in) {
         BufferedReader br = null;
         String words[] = null;
@@ -85,14 +93,56 @@ public class Draft_text_categorization {
 	}
 	
 	/**
+	 * 
+	 * @param vector
+	 * @return
+	 */
+	public static Map<String, Integer> wordCounterForVector(Vector<String> vector) {
+        ArrayList<String> words = new ArrayList<String>();
+        Map<String, Integer> wordCount = new HashMap<String, Integer>();     //Creates an Hash Map for storing the words and its count
+        try {
+        	
+            for(String vectorElement:vector){
+            	words.add(vectorElement.toLowerCase());                      //Splits the words with "space" as an delimeter
+            }
+            
+            for (String read : words) {
+                Integer freq = wordCount.get(read);
+                wordCount.put(read, (freq == null) ? 1 : freq + 1); //For Each word the count will be incremented in the Hashmap
+            }
+        } catch (NullPointerException e) {
+            System.out.println("I could'nt read your files:" + e);
+        }
+            
+        System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
+        System.out.println(wordCount);                                 //Prints the Word and its occurrence
+        
+        return wordCount;
+	}
+	
+	/**
 	 * Devuelve un Set<String> compuesto por los términos 
 	 * que aparecen en el archivo txt pasado como parámetro
 	 * 
 	 * @param file
 	 * @return
 	 */
-	public Set<String> fileToSet(Scanner file){
+	public static Set<String> fileToSet(Scanner file){
 		Set<String> doc = new HashSet<>();
+		while (file.hasNext()) {
+		    doc.add(file.next().trim().toLowerCase());
+		}
+		
+		return doc;
+	}
+	
+	/**
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public static Vector<String> fileToVector(Scanner file){
+		Vector<String> doc = new Vector<>();
 		while (file.hasNext()) {
 		    doc.add(file.next().trim().toLowerCase());
 		}
@@ -106,14 +156,23 @@ public class Draft_text_categorization {
 	 */
 	public static void main(String[] args) {
 		
-		Scanner scan = new Scanner(StopWords.class.getResourceAsStream("/clippings/test.txt"));
-		InputStream fileIs = StopWords.class.getResourceAsStream("/clippings/test.txt");
-				
-		Map<String, Integer> wordCount = wordCounterMethod(fileIs);
+		/**
+		 *	1) se obtiene el listado de documentos de un path
+		 *
+		 */
+		//TODO
 		
-//		while (scan.hasNext()) {
-//		    System.out.println(scan.next().trim().toLowerCase());
-//		}
+		
+		 /**	2) for(Documento : listaDocumentos){
+		 *		2.1) eliminar las stop_words del documento
+		 *		
+		 *		2.2) asignar peso a cada término (# apariciones)
+		 */
+		
+		//2.1
+		//Obtenemos el documento que queremos categorizar
+		Scanner scan = new Scanner(StopWords.class.getResourceAsStream("/clippings/test.txt"));
+		//InputStream fileIs = StopWords.class.getResourceAsStream("/clippings/test.txt");
 		
 		String[] stop_words_vector = StopWords.stop_words;
 		
@@ -122,10 +181,17 @@ public class Draft_text_categorization {
 			stop_words_set.add(stop_word.toLowerCase());
 		}
 		
-		// Set que contiene todos los términos de un documento
-		Set<String> document = new HashSet<>(); //TODO
+		// Vetor que contiene todos los términos de un documento
+		Vector<String> docToCategorize = fileToVector(scan);
 		// Eliminamos las stop_words del documento
-		document.removeAll(stop_words_set);
+		docToCategorize.removeAll(stop_words_set);
+						
+		// Calculamos los pesos de cada palabra de la noticia
+		Map<String, Integer> wordCount = wordCounterForVector(docToCategorize);
+		
+		
+		
+		
 		
 		
 		/**
