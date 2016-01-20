@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Vector;
@@ -172,8 +173,12 @@ public class Draft_text_categorization {
 	public static void news_categorization(String package_path){
 		
 		Map<String, Integer> glossWithWeights = new HashMap<String,Integer>();
+		Map<String, Double> resultados = new HashMap<String,Double>();
+		
 		double similaridad = 0.0;
 		String tipoGlosario = "";
+		
+		Map.Entry<String, Double> maxEntry = null;
 		
 		for(int counter = 1; counter<=15;counter++){
 			//2.1) eliminar las stop_words del documento
@@ -195,11 +200,18 @@ public class Draft_text_categorization {
 						break;
 					
 				}
+				resultados.put(tipoGlosario, similaridad);
+				
 				System.out.println("Similaridad de noticia "+package_path+counter+".txt con glosario de "+tipoGlosario+" = "+String.format("%.2f",similaridad*100)+" %");
 			}
-			System.out.println("\n");
-			
-			System.out.println("\n");
+			for (Entry<String, Double> resultado : resultados.entrySet())
+			{
+			    if (maxEntry == null || resultado.getValue().compareTo(maxEntry.getValue()) > 0)
+			    {
+			        maxEntry = resultado;
+			    }
+			}
+			System.out.println("\nLa noticia "+package_path+counter+".txt, es de categoría "+maxEntry.getKey()+", con un "+String.format("%.2f",maxEntry.getValue()*100)+" %\n");
 		}
 	}
 
