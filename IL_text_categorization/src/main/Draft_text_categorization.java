@@ -40,7 +40,7 @@ public class Draft_text_categorization {
 	 * @param v2
 	 * @return
 	 */
-	static double cosine_similarity(Map<String, Double> v1, Map<String, Double> v2) {
+	static double cosine_similarity_2(Map<String, Double> v1, Map<String, Double> v2) {
 		@SuppressWarnings("unchecked")
 		Set<String> both = new HashSet(v1.keySet());
 		both.removeAll(v2.keySet());
@@ -58,6 +58,28 @@ public class Draft_text_categorization {
 		}
 		return sclar / Math.sqrt(norm1 * norm2);
 	}
+	
+	/**
+	 * 
+	 * http://stackoverflow.com/questions/3622112/vector-space-model-algorithm-in-java-to-get-the-similarity-score-between-two-peo
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	static double cosine_similarity(Map<String, Integer> v1, Map<String, Integer> v2) {
+		Set<String> both = new HashSet(v1.keySet());
+        both.retainAll(v2.keySet());
+        double sclar = 0, norm1 = 0, norm2 = 0;
+        
+        for (String k : both) 
+        	sclar += v1.get(k) * v2.get(k);
+        for (String k : v1.keySet()) 
+        	norm1 += v1.get(k) * v1.get(k);
+        for (String k : v2.keySet()) 
+        	norm2 += v2.get(k) * v2.get(k);
+        return sclar / Math.sqrt(norm1 * norm2);
+}
 	
 	/**
 	 * 
@@ -150,6 +172,30 @@ public class Draft_text_categorization {
 		return doc;
 	}
 	
+	public static Map<String, Integer> docToMap(String path)
+	{
+		Scanner scan = new Scanner(StopWords.class.getResourceAsStream(path));
+		//InputStream fileIs = StopWords.class.getResourceAsStream("/clippings/test.txt");
+		
+		String[] stop_words_vector = StopWords.stop_words;
+		
+		Set<String> stop_words_set = new HashSet<>();
+		for(String stop_word:stop_words_vector){
+			stop_words_set.add(stop_word.toLowerCase());
+		}
+		
+		// Vetor que contiene todos los términos de un documento
+		Vector<String> docToCategorize = fileToVector(scan);
+		// Eliminamos las stop_words del documento
+		docToCategorize.removeAll(stop_words_set);
+		
+		// 2.2) asignar peso a cada término (# apariciones)
+		// Calculamos los pesos de cada palabra de la noticia
+		Map<String, Integer> docWithWeights = wordCounterForVector(docToCategorize);
+		
+		return docWithWeights;
+	}
+	
 
 	/**
 	 * @param args
@@ -169,30 +215,35 @@ public class Draft_text_categorization {
 		 *		2.2) asignar peso a cada término (# apariciones)
 		 */
 		
-		//2.1
+		//2.1) eliminar las stop_words del documento
 		//Obtenemos el documento que queremos categorizar
-		Scanner scan = new Scanner(StopWords.class.getResourceAsStream("/clippings/test.txt"));
-		//InputStream fileIs = StopWords.class.getResourceAsStream("/clippings/test.txt");
+		Map<String, Integer> docWithWeights = docToMap("/clippings/test.txt");
 		
-		String[] stop_words_vector = StopWords.stop_words;
-		
-		Set<String> stop_words_set = new HashSet<>();
-		for(String stop_word:stop_words_vector){
-			stop_words_set.add(stop_word.toLowerCase());
-		}
-		
-		// Vetor que contiene todos los términos de un documento
-		Vector<String> docToCategorize = fileToVector(scan);
-		// Eliminamos las stop_words del documento
-		docToCategorize.removeAll(stop_words_set);
+		/** 2.3) se categoriza el Documento
+		 *			2.3.1) se calcula la similaridad numérica entre cada “documento query (Q)” (vector/set) y cada vector 
+		 *					documento en la colección (Di):
+			
+							Sim(Q; Di) = SUM(qj*dij) para los términos comunes tj
+			
+						donde:
+						tj → término presente en Q y Di
+						qj → peso del término tj en Q
+						dij → peso del término tj en Di
 						
-		// Calculamos los pesos de cada palabra de la noticia
-		Map<String, Integer> wordCount = wordCounterForVector(docToCategorize);
+						for(glosario : lista_glosarios){
+							double similaridad = cosine_similarity(Map v1, Map v2);
+							syso(similaridad);
+						}
+		*/
+		Map<String, Integer> glossWithWeights = new HashMap<String,Integer>();
+		double similaridad = 0.0;
 		
-		
-		
-		
-		
+		for(int i=1; i<4; i++){
+			glossWithWeights = docToMap("/clippings/glosario_"+i+".txt");
+			similaridad = cosine_similarity(docWithWeights, glossWithWeights);
+			
+			System.out.println("Similaridad con glosario_"+i+" = "+similaridad);
+		}
 		
 		/**
 		 *	1) se obtiene el listado de documentos de un path
