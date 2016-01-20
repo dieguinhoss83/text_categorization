@@ -31,33 +31,6 @@ public class Draft_text_categorization {
 	public Draft_text_categorization() {
 		// TODO Auto-generated constructor stub
 	}
-
-	/**
-	 * 
-	 * http://stackoverflow.com/questions/3622112/vector-space-model-algorithm-in-java-to-get-the-similarity-score-between-two-peo
-	 * 
-	 * @param v1
-	 * @param v2
-	 * @return
-	 */
-	static double cosine_similarity_2(Map<String, Double> v1, Map<String, Double> v2) {
-		@SuppressWarnings("unchecked")
-		Set<String> both = new HashSet(v1.keySet());
-		both.removeAll(v2.keySet());
-
-		double sclar = 0, norm1 = 0, norm2 = 0;
-
-		/*
-		 * We need to perform cosine similarity only on words that exist in both
-		 * lists
-		 */
-		for (String k : both) {
-			sclar += v1.get(k) * v2.get(k);
-			norm1 += v1.get(k) * v1.get(k);
-			norm2 += v2.get(k) * v2.get(k);
-		}
-		return sclar / Math.sqrt(norm1 * norm2);
-	}
 	
 	/**
 	 * 
@@ -79,7 +52,7 @@ public class Draft_text_categorization {
         for (String k : v2.keySet()) 
         	norm2 += v2.get(k) * v2.get(k);
         return sclar / Math.sqrt(norm1 * norm2);
-}
+	}
 	
 	/**
 	 * 
@@ -136,8 +109,8 @@ public class Draft_text_categorization {
             System.out.println("I could'nt read your files:" + e);
         }
             
-        //System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
-        //System.out.println(wordCount);                                 //Prints the Word and its occurrence
+//        System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
+//        System.out.println(wordCount);                                 //Prints the Word and its occurrence
         
         return wordCount;
 	}
@@ -184,7 +157,7 @@ public class Draft_text_categorization {
 			stop_words_set.add(stop_word.toLowerCase());
 		}
 		
-		// Vetor que contiene todos los términos de un documento
+		// Vector que contiene todos los términos de un documento
 		Vector<String> docToCategorize = fileToVector(scan);
 		// Eliminamos las stop_words del documento
 		docToCategorize.removeAll(stop_words_set);
@@ -196,6 +169,39 @@ public class Draft_text_categorization {
 		return docWithWeights;
 	}
 	
+	public static void news_categorization(String package_path){
+		
+		Map<String, Integer> glossWithWeights = new HashMap<String,Integer>();
+		double similaridad = 0.0;
+		String tipoGlosario = "";
+		
+		for(int counter = 1; counter<=15;counter++){
+			//2.1) eliminar las stop_words del documento
+			//Obtenemos el documento que queremos categorizar
+			Map<String, Integer> docWithWeights = docAsVectorToMap(package_path+counter+".txt");
+			
+			for(int i=1; i<4; i++){
+				glossWithWeights = docAsVectorToMap("/clippings/glosario_"+i+".txt");
+				similaridad = cosine_similarity(docWithWeights, glossWithWeights);
+				switch(i){
+					case 1: 
+						tipoGlosario="DEPORTES";
+						break;
+					case 2:
+						tipoGlosario="ECONOMÍA";
+						break;
+					case 3: 
+						tipoGlosario="POLÍTICA";
+						break;
+					
+				}
+				System.out.println("Similaridad de noticia "+package_path+counter+".txt con glosario de "+tipoGlosario+" = "+String.format("%.2f",similaridad*100)+" %");
+			}
+			System.out.println("\n");
+			
+			System.out.println("\n");
+		}
+	}
 
 	/**
 	 * @param args
@@ -205,25 +211,12 @@ public class Draft_text_categorization {
 		/**
 		 *	1) se obtiene el listado de documentos de un path
 		 *
-		 */
-		//TODO
-		
-		
-		 /**	2) for(Documento : listaDocumentos){
+		 *  2) for(Documento : listaDocumentos){
 		 *		2.1) eliminar las stop_words del documento
 		 *		
 		 *		2.2) asignar peso a cada término (# apariciones)
-		 */
-		
-		Map<String, Integer> glossWithWeights = new HashMap<String,Integer>();
-		double similaridad = 0.0;
-			
-		for(int news_sports_counter = 1; news_sports_counter<=15;news_sports_counter++){
-			//2.1) eliminar las stop_words del documento
-			//Obtenemos el documento que queremos categorizar
-			Map<String, Integer> docWithWeights = docAsVectorToMap("/news_sports/news_sports_"+news_sports_counter+".txt");
-			
-			/** 2.3) se categoriza el Documento
+		 *
+		 *      2.3) se categoriza el Documento
 			 *			2.3.1) se calcula la similaridad numérica entre cada “documento query (Q)” (vector/set) y cada vector 
 			 *					documento en la colección (Di):
 				
@@ -233,20 +226,16 @@ public class Draft_text_categorization {
 							tj → término presente en Q y Di
 							qj → peso del término tj en Q
 							dij → peso del término tj en Di
-							
-							for(glosario : lista_glosarios){
-								double similaridad = cosine_similarity(Map v1, Map v2);
-								syso(similaridad);
-							}
 			*/
-			
-			for(int i=1; i<4; i++){
-				glossWithWeights = docAsVectorToMap("/clippings/glosario_"+i+".txt");
-				similaridad = cosine_similarity(docWithWeights, glossWithWeights);
-				
-				System.out.println("Similaridad de noticia news_sports_"+news_sports_counter+".txt con glosario_"+i+" = "+String.format("%.2f",similaridad*100)+" %");
-			}
-		}
+		//Categorizamos noticias de deportes
+		news_categorization("/news_sports/news_sports_");
+		
+		//Categorizamos noticias de economía
+		news_categorization("/news_economics/news_economics_");
+		
+		//Categorizamos noticias de política
+		news_categorization("/news_politics/news_politics_");
+
 	}
 
 }
