@@ -1,10 +1,24 @@
+/** Copyright 2015 Diego Martin,Javier Montero
+	Licensed under the Apache License, Version 2.0 (the "License"); 
+	you may not use this file except in compliance with the License. 
+	You may obtain a copy of the License at 
+	
+	http://www.apache.org/licenses/LICENSE-2.0 
+	
+	Unless required by applicable law or agreed to in writing, software 
+	distributed under the License is distributed on an "AS IS" BASIS, 
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+	See the License for the specific language governing permissions and 
+	limitations under the License. 
+*/
+
 package main;
-/**
- * 
- */
 
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,10 +33,6 @@ import java.util.Vector;
 
 import org.apache.commons.io.IOUtils;
 
-/**
- * @author DIEGO
- *
- */
 public class Draft_text_categorization {
 
 	/**
@@ -183,7 +193,13 @@ public class Draft_text_categorization {
 	{
 		//Scanner scan = new Scanner(StopWords.class.getResourceAsStream(path));
 		InputStream fileIs = StopWords.class.getResourceAsStream(path);
-		
+		if(fileIs == null){
+			try {
+				fileIs = new FileInputStream(new File(path));
+			} catch (FileNotFoundException e) {
+				System.out.println("Error: Fichero no encontrado");
+			}
+		}
 		String[] stop_words_vector = StopWords.stop_words;
 		
 		Set<String> stop_words_set = new HashSet<>();
@@ -207,16 +223,19 @@ public class Draft_text_categorization {
 		
 		Map<String, Integer> glossWithWeights = new HashMap<String,Integer>();
 		Map<String, Double> resultados = new HashMap<String,Double>();
-		
+		int limit = 15;
+		if(package_path.endsWith(".txt")){
+			limit = 1;
+		}
 		double similaridad = 0.0;
 		String tipoGlosario = "";
 		
 		Map.Entry<String, Double> maxEntry = null;
 		
-		for(int counter = 1; counter<=15;counter++){
+		for(int counter = 1; counter<=limit;counter++){
 			//2.1) eliminar las stop_words del documento
 			//Obtenemos el documento que queremos categorizar
-			Map<String, Integer> docWithWeights = docAsVectorToMap(package_path+counter+".txt");
+			Map<String, Integer> docWithWeights = docAsVectorToMap(package_path);
 			
 			for(int i=1; i<4; i++){
 				glossWithWeights = docAsVectorToMap("/clippings/glosario_"+i+".txt");
@@ -247,40 +266,4 @@ public class Draft_text_categorization {
 			System.out.println("\nLa noticia "+package_path+counter+".txt, es de categoría "+maxEntry.getKey()+", con un "+String.format("%.2f",maxEntry.getValue()*100)+" %\n");
 		}
 	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		
-		/**
-		 *	1) se obtiene el listado de documentos de un path
-		 *
-		 *  2) for(Documento : listaDocumentos){
-		 *		2.1) eliminar las stop_words del documento
-		 *		
-		 *		2.2) asignar peso a cada término (# apariciones)
-		 *
-		 *      2.3) se categoriza el Documento
-			 *			2.3.1) se calcula la similaridad numérica entre cada “documento query (Q)” (vector/set) y cada vector 
-			 *					documento en la colección (Di):
-				
-								Sim(Q; Di) = SUM(qj*dij) para los términos comunes tj
-				
-							donde:
-							tj → término presente en Q y Di
-							qj → peso del término tj en Q
-							dij → peso del término tj en Di
-			*/
-		//Categorizamos noticias de deportes
-		news_categorization("/news_sports/news_sports_");
-		
-		//Categorizamos noticias de economía
-		news_categorization("/news_economics/news_economics_");
-		
-		//Categorizamos noticias de política
-		news_categorization("/news_politics/news_politics_");
-
-	}
-
 }
