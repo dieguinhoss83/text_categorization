@@ -5,10 +5,6 @@ package main;
 
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,7 +41,7 @@ public class Draft_text_categorization {
 	 * @return
 	 */
 	static double cosine_similarity(Map<String, Integer> v1, Map<String, Integer> v2) {
-		Set<String> both = new HashSet(v1.keySet());
+		Set<String> both = new HashSet<String>(v1.keySet());
         both.retainAll(v2.keySet());
         double sclar = 0, norm1 = 0, norm2 = 0;
         
