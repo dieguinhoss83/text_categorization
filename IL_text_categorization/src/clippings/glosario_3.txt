@@ -1,4 +1,12 @@
 13-N
+pnv
+euskal
+psoe
+podemos
+legislatura
+nacionalista
+gobierno
+Agirretxea
 20-D
 Agredida
 Agresión

@@ -6,6 +6,7 @@ package main;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -19,6 +20,8 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Vector;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * @author DIEGO
@@ -82,8 +85,8 @@ public class Draft_text_categorization {
             System.out.println("I could'nt read your files:" + e);
         }
             
-        //System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
-        //System.out.println(wordCount);                                 //Prints the Word and its occurrence
+        System.out.println(wordCount.size() + " distinct words:");     //Prints the Number of Distinct words found in the files read
+        System.out.println(wordCount);                                 //Prints the Word and its occurrence
         
         return wordCount;
 	}
@@ -137,19 +140,53 @@ public class Draft_text_categorization {
 	 * @param file
 	 * @return
 	 */
-	public static Vector<String> fileToVector(Scanner file){
-		Vector<String> doc = new Vector<>();
-		while (file.hasNext()) {
-		    doc.add(file.next().trim().toLowerCase());
+	public static Vector<String> fileToVector(InputStream file){
+		
+		String word = "";
+		try {
+			word = IOUtils.toString(file,"ISO-8859-1");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Error al leer el fichero:" + e.getMessage());
 		}
 		
+		
+		Vector<String> doc = new Vector<>();
+		word = word.trim().toLowerCase();
+		word = word.replace("(", "");
+		word = word.replace(")", "");
+		word = word.replace(",", "");
+		word = word.replace(".", "");
+		word = word.replace(":", "");
+		word = word.replace("'", "");
+		word = word.replace("\"", "");
+		word = word.replace("-", "");
+		word = word.replace("=", "");
+		word = word.replace("á", "a");
+		word = word.replace("é", "e");
+		word = word.replace("í", "i");
+		word = word.replace("ó", "o");
+		word = word.replace("ú", "u");
+		word = word.replace("ñ", "n");
+		word = word.replace("{", "");
+		word = word.replace("}", "");
+		word = word.replace("¿", "");
+		word = word.replace("?", "");
+		word = word.replace("\n", " ");
+		word = word.replace("\r", "");
+		String[] tokens = word.split(" ");
+		for(String w1 : tokens){
+			
+			if(!w1.equals("") && !w1.equals(" ") && !w1.contains(" "))
+				doc.add(w1);
+		}
 		return doc;
 	}
 	
 	public static Map<String, Integer> docAsVectorToMap(String path)
 	{
-		Scanner scan = new Scanner(StopWords.class.getResourceAsStream(path));
-		//InputStream fileIs = StopWords.class.getResourceAsStream("/clippings/test.txt");
+		//Scanner scan = new Scanner(StopWords.class.getResourceAsStream(path));
+		InputStream fileIs = StopWords.class.getResourceAsStream(path);
 		
 		String[] stop_words_vector = StopWords.stop_words;
 		
@@ -157,9 +194,9 @@ public class Draft_text_categorization {
 		for(String stop_word:stop_words_vector){
 			stop_words_set.add(stop_word.toLowerCase());
 		}
-		
+				
 		// Vector que contiene todos los términos de un documento
-		Vector<String> docToCategorize = fileToVector(scan);
+		Vector<String> docToCategorize = fileToVector(fileIs);
 		// Eliminamos las stop_words del documento
 		docToCategorize.removeAll(stop_words_set);
 		
