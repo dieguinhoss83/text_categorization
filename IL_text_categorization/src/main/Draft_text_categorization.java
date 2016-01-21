@@ -235,7 +235,11 @@ public class Draft_text_categorization {
 		for(int counter = 1; counter<=limit;counter++){
 			//2.1) eliminar las stop_words del documento
 			//Obtenemos el documento que queremos categorizar
-			Map<String, Integer> docWithWeights = docAsVectorToMap(package_path);
+			String pathToFile = package_path;
+			if(limit > 1){
+				pathToFile = pathToFile.concat(counter+".txt");
+			}
+			Map<String, Integer> docWithWeights = docAsVectorToMap(pathToFile);
 			
 			for(int i=1; i<4; i++){
 				glossWithWeights = docAsVectorToMap("/clippings/glosario_"+i+".txt");

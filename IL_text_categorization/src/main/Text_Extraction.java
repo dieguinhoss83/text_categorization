@@ -19,19 +19,20 @@ public class Text_Extraction {
 			+ "\n-h,-help : Repeticion de este mensaje de ayuda"
 			+ "\n-version: Version de la aplicacion"
 			+ "\n-a,-authors: Creadores de la aplicacion"
+			+ "\n-d: Procesamiento de las noticias utilizadas en la practica"
 			+ "\n-f <ficheroaprocesar.txt>: Ejecucion de la aplicacion";
 	public static void main(String[] args) {
 		try{
 			if(args.length > 0){
-				if(args[0] == "-h" || args[0] == "-help"){
+				if("-h".equals(args[0]) || "-help".equals(args[0])){
 					System.out.println(helpMessage);
-				}else if(args[0] == "-version"){
+				}else if("-version".equals(args[0])){
 					System.out.println("Version 1.0");
 				}
-				else if(args[0] == "-a" || args[0] == "-authors"){
+				else if("-a".equals(args[0]) || "-authors".equals(args[0])){
 					System.out.println("Diego Martín y Javier Montero");
 				}
-				else if(args[0] == "-d" ){
+				else if("-d".equals(args[0]) ){
 					//Categorizamos noticias de deportes
 					Draft_text_categorization.news_categorization("/news_sports/news_sports_");
 					
