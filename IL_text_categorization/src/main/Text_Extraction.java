@@ -30,16 +30,16 @@ public class Text_Extraction {
 					System.out.println("Version 1.0");
 				}
 				else if("-a".equals(args[0]) || "-authors".equals(args[0])){
-					System.out.println("Diego Martín y Javier Montero");
+					System.out.println("Diego Martin y Javier Montero");
 				}
 				else if("-d".equals(args[0]) ){
 					//Categorizamos noticias de deportes
 					Draft_text_categorization.news_categorization("/news_sports/news_sports_");
 					
-					//Categorizamos noticias de economía
+					//Categorizamos noticias de economia
 					Draft_text_categorization.news_categorization("/news_economics/news_economics_");
 					
-					//Categorizamos noticias de política
+					//Categorizamos noticias de politica
 					Draft_text_categorization.news_categorization("/news_politics/news_politics_");
 				}
 				else if("-f".equals(args[0])){

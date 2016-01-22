@@ -82,7 +82,9 @@ public class Draft_text_categorization {
                 words = line.toLowerCase().split("\\s+");                      //Splits the words with "space" as an delimeter 
             }
             br.close();
-            
+            if(words == null) {
+            	throw new NullPointerException("Error processing input file");
+            }
             for (String read : words) {
                 Integer freq = wordCount.get(read);
                 wordCount.put(read, (freq == null) ? 1 : freq + 1); //For Each word the count will be incremented in the Hashmap
@@ -170,7 +172,7 @@ public class Draft_text_categorization {
 		word = word.replace("=", "");
 		word = word.replace("á", "a");
 		word = word.replace("é", "e");
-		word = word.replace("í", "i");
+		word = word.replace("i", "i");
 		word = word.replace("ó", "o");
 		word = word.replace("ú", "u");
 		word = word.replace("ñ", "n");
@@ -249,10 +251,10 @@ public class Draft_text_categorization {
 						tipoGlosario="DEPORTES";
 						break;
 					case 2:
-						tipoGlosario="ECONOMÍA";
+						tipoGlosario="ECONOMIA";
 						break;
 					case 3: 
-						tipoGlosario="POLÍTICA";
+						tipoGlosario="POLITICA";
 						break;
 					
 				}
@@ -267,7 +269,9 @@ public class Draft_text_categorization {
 			        maxEntry = resultado;
 			    }
 			}
-			System.out.println("\nLa noticia "+package_path+counter+".txt, es de categoría "+maxEntry.getKey()+", con un "+String.format("%.2f",maxEntry.getValue()*100)+" %\n");
+			if(maxEntry != null) {
+				System.out.println("\nLa noticia "+package_path+counter+".txt, es de categoria "+maxEntry.getKey()+", con un "+String.format("%.2f",maxEntry.getValue()*100)+" %\n");
+			}
 		}
 	}
 }
